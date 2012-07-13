@@ -153,29 +153,37 @@ setInterval(function() {
 }, 3600000); //Runs every hour
 
 //Called when a user hits index
-app.get('/', function(req, res){
-  getMilestones(function(milestones, projectInfo){
+app.get('/', function(req, res) {
+  getMilestones(function(milestones, projectInfo) {
+    ProjectInfo.find({}).exec(function(err, projectInfoThings) {
+
+      var projectURI = 'https://github.com/' + config.project.user + '/' + config.project.repo;
+      
+      res.render('index', {
+        project: {
+          name: config.project.repo,
+          uri: projectURI
+        },
+        shamedUsers: projectInfo.wallOfShame,
+        milestones: milestones,
+        totals: projectInfo.totals,
+        overallHistory: projectInfoThings[0].totalsHistory.map(function(tick) {
+          return tick.progress;
+        })
+      });
     
-    var projectURI = 'https://github.com/' + config.project.user + '/' + config.project.repo;
-    res.render('index', {
-      project: {
-        name: config.project.repo,
-        uri: projectURI
-      },
-      shamedUsers: projectInfo.wallOfShame,
-      milestones: milestones,
-      totals: projectInfo.totals
-    }); 
+    });
   });
 
 });
-app.get('/debug', function(req, res){
-  ProjectInfo.find({}).exec(function(err, info){
-    Milestone.find({}).exec(function(err, milestones){
+
+app.get('/debug', function(req, res) {
+  ProjectInfo.find({}).exec(function(err, info) {
+    Milestone.find({}).exec(function(err, milestones) {
       res.send({
-                  'project' : info
-                , 'milestones' : milestones
-              });
+          'project' : info
+        , 'milestones' : milestones
+      });
     });
   });
 });
@@ -262,7 +270,7 @@ function getMilestones(next) {
       projectInfo.totals.progress = (projectInfo.totals.closed_issues / projectInfo.totals.total_issues) * 100;
       //console.log(projectInfo.totals.progress + ' ('+projectInfo.totals.closed_issues+'/'+(projectInfo.totals.closed_issues + projectInfo.totals.open_issues) +')');
       
-      getIssues(milestone, projectInfo, function(updatedProjectInfo){
+      getIssues(milestone, projectInfo, function(updatedProjectInfo) {
         projectInfo = updatedProjectInfo;
         projectInfo.wallOfShame = _.toArray(projectInfo.mostOpenIssues).sort(compare);
         if (asyncCount == 0) {

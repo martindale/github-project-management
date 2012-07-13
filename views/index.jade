@@ -5,7 +5,8 @@ p Yep.
 h2 Overall Progress: #{totals.progress}%
 .progress.progress-striped.active
   .bar(style="width: #{totals.progress}%")
-div History: #{totals.history}
+
+#overallHistory(style="height: 150px;")
 
 h2 Wall of Shame
 ol
@@ -26,3 +27,22 @@ ol
       .progress.progress-striped
         .bar(style="width: #{milestone.progress}%")
       div History: #{milestone.history}
+      
+script
+  $.jqplot('overallHistory',  [[#{overallHistory}]], {
+    seriesDefaults: {
+      trendline: {
+        show: true,
+        color: '#ff0000'
+      }
+    },  
+    axes: { 
+      xaxis: {
+        renderer: $.jqplot.DateAxisRenderer
+      },
+      yaxis: { min: 0, max: 100 }
+    },
+    highlighter: {
+      show: true
+    }
+  });
