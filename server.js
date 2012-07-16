@@ -155,7 +155,7 @@ setInterval(function() {
 //Called when a user hits index
 app.get('/', function(req, res) {
   getMilestones(function(milestones, projectInfo) {
-    ProjectInfo.find({}).exec(function(err, projectInfoThings) {
+    ProjectInfo.find({}).limit(168).exec(function(err, projectInfoThings) {
 
       var projectURI = 'https://github.com/' + config.project.user + '/' + config.project.repo;
       
